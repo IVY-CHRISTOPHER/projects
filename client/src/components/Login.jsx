@@ -2,12 +2,13 @@ import {useState} from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 
-const Login = () => {
+const Login = (props) => {
     const navigate = useNavigate()
     const [userLogin, setUserLogin] = useState({
         email: "",
         password: "",
     })
+    const {socket, isconnected, setIsConnected, username, setUsername} = props;
 
     const changeHandler = (e) => {
         setUserLogin({
@@ -21,6 +22,9 @@ const Login = () => {
         axios.post("http://localhost:8000/api/login", userLogin, {withCredentials: true})
             .then((res) => {
                 console.log(res);
+                setUsername(res.data.firstName + " " + res.data.lastName);
+                console.log("username - ", username);
+                socket.emit('Sign in', username);
                 navigate('/homepage')
             })
             .catch((err) => {
@@ -37,6 +41,7 @@ const Login = () => {
             </div>
             <h1 className="text-center">Login</h1>
             <form className="w-50 mx-auto" onSubmit={submitHandler}>
+                <input type="hidden" value={userLogin._id} />
                 <div>
                     <label className="form-label">Email: </label>
                     <input className="form-control" type="email" name="email" value={userLogin.email} onChange={changeHandler}/>
